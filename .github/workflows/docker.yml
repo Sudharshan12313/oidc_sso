@@ -23,24 +23,25 @@ jobs:
          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-    # Build, tag, and push Docker image for Patient Service
-    - name: Build, Tag & Push Docker Image for Patient Service
+    # Build, tag, and push Docker image for Hello World Service
+    - name: Build, Tag & Push Docker Image for Hello World Service
       run: |
-        cd App/Patient/
-        docker build -t patient-service:latest -f Dockerfile .
-        docker tag patient-service:latest ${{ secrets.AWS_ECR_PATIENT_URL }}:latest
-        docker push ${{ secrets.AWS_ECR_PATIENT_URL }}:latest
+        cd App/hello-world/
+        docker build -t hello-world:latest -f Dockerfile .
+        docker tag hello-world:latest ${{ secrets.AWS_ECR_HELLO_URL }}:latest
+        docker push ${{ secrets.AWS_ECR_HELLO_URL }}:latest
 
-    # Build, tag, and push Docker image for Appointment Service
-    - name: Build, Tag & Push Docker Image for Appointment Service
-      run: |
-        cd App/Appointment/
-        docker build -t appointment-service:latest -f Dockerfile .
-        docker tag appointment-service:latest ${{ secrets.AWS_ECR_APPOINTMENT_URL }}:latest
-        docker push ${{ secrets.AWS_ECR_APPOINTMENT_URL }}:latest
+    # # Build, tag, and push Docker image for Appointment Service
+    # - name: Build, Tag & Push Docker Image for Appointment Service
+    #   run: |
+    #     cd App/Appointment/
+    #     docker build -t appointment-service:latest -f Dockerfile .
+    #     docker tag appointment-service:latest ${{ secrets.AWS_ECR_APPOINTMENT_URL }}:latest
+    #     docker push ${{ secrets.AWS_ECR_APPOINTMENT_URL }}:latest
 
     # Optionally, remove local Docker images after pushing
+    #docker rmi ${{ secrets.AWS_ECR_APPOINTMENT_URL }}:latest
     - name: Cleanup local Docker images
       run: |
-        docker rmi ${{ secrets.AWS_ECR_PATIENT_URL }}:latest
-        docker rmi ${{ secrets.AWS_ECR_APPOINTMENT_URL }}:latest
+        docker rmi ${{ secrets.AWS_ECR_HELLO_URL }}:latest
+        
