@@ -46,7 +46,7 @@ resource "aws_iam_role" "github_actions_oidc" {
 }
 
 
-resource "aws_iam_policy" "github_actions_policy" {
+/*resource "aws_iam_policy" "github_actions_policy" {
   name = "github-actions-policy"
   policy = jsonencode({
     Version = "2012-10-17"
@@ -61,4 +61,4 @@ resource "aws_iam_policy" "github_actions_policy" {
 resource "aws_iam_role_policy_attachment" "github_actions_attachment" {
   role       = aws_iam_role.github_actions_oidc.name
   policy_arn = aws_iam_policy.github_actions_policy.arn
-}
+}*/
