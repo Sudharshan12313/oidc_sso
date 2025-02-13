@@ -12,6 +12,9 @@ on:
         - dev
         - staging
         - prod
+permissions:
+  contents: read
+  id-token: write         
 
 jobs:
   destroy:
@@ -30,7 +33,7 @@ jobs:
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
-          role-to-assume: arn:aws:iam::183114607892:role/github-actions-oidc
+          role-to-assume: arn:aws:iam::183114607892:role/github_actions_oidc
           role-session-name: githubactions
           aws-region: "us-west-2"     
 
