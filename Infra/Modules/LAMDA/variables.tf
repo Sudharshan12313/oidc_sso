@@ -7,7 +7,7 @@ variable "region" {
 }
 
 variable "image_name"{
-default="010928202531.dkr.ecr.us-east-1.amazonaws.com/hackathon/helloworld:latest"
+default="183114607892.dkr.ecr.us-west-2.amazonaws.com/helloword-service:latest"
 }
 
 variable "lambda_role_arn" {

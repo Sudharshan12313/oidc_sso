@@ -1,47 +1,39 @@
-# resource "aws_security_group" "lamda_sg" {
-#   name        = "eks-cluster-sg"
-#   description = "EKS cluster security group"
-#   vpc_id      = var.vpc_id
+# infra/modules/cognito/cognito.tf
+resource "aws_cognito_user_pool" "oidc" {
+  name = "oidc-user-pool"
 
-#   egress {
-#     from_port   = 0          # Allow all ports for egress traffic
-#     to_port     = 0          # Allow all ports for egress traffic
-#     protocol    = "-1"       # All protocols
-#     cidr_blocks = ["0.0.0.0/0"]  # Allow traffic to anywhere
-#   }
+  username_attributes = ["email"]
+  auto_verified_attributes = ["email"]
+}
 
-#   ingress {
-#     from_port   = 80
-#     to_port     = 80
-#     protocol    = "tcp"
-#     cidr_blocks = ["0.0.0.0/0"]  # Allow HTTP traffic from anywhere
-#   }
+/*resource "aws_cognito_user_pool_domain" "oidc_domain" {
+  domain       = "testlambdasso" # Replace with your unique domain
+  user_pool_id = aws_cognito_user_pool.oidc.id
+}*/
 
-#   ingress {
-#     from_port   = 443
-#     to_port     = 443
-#     protocol    = "tcp"
-#     cidr_blocks = ["0.0.0.0/0"]  # Allow HTTPS traffic from anywhere
-#   }
-  
-#   ingress {
-#     from_port   = 3000
-#     to_port     = 3000
-#     protocol    = "tcp"
-#     cidr_blocks = ["0.0.0.0/0"]  # Allow HTTPS traffic from anywhere
-#   }
 
-#   ingress {
-#     from_port   = 3001
-#     to_port     = 3001
-#     protocol    = "tcp"
-#     cidr_blocks = ["0.0.0.0/0"]  # Allow HTTPS traffic from anywhere
-#   }
 
-#   tags = {
-#     Name = "eks-lamda-sg"
-#   }
-# }
+resource "aws_cognito_user_pool_client" "oidc_client" {
+  name         = "oidc-client"
+  user_pool_id = aws_cognito_user_pool.oidc.id
+
+  allowed_oauth_flows                 = ["code", "implicit"]
+  allowed_oauth_flows_user_pool_client = true
+  allowed_oauth_scopes                 = ["openid", "email"]
+
+  supported_identity_providers = ["COGNITO"]  # Must be set
+
+  callback_urls = ["http://localhost:3000/callback"]
+  logout_urls   = ["https://localhost.com/logout"]
+
+  explicit_auth_flows = [
+    "ALLOW_REFRESH_TOKEN_AUTH",
+    "ALLOW_USER_SRP_AUTH",
+    "ALLOW_ADMIN_USER_PASSWORD_AUTH",
+     "ALLOW_USER_PASSWORD_AUTH"
+  ]
+}
+
 
 # Lambda Function
 resource "aws_lambda_function" "my_lambda" {
@@ -75,6 +67,21 @@ resource "aws_apigatewayv2_api" "lambda_api" {
   }
 }
 
+resource "aws_apigatewayv2_authorizer" "oidc_auth" {
+  api_id          = aws_apigatewayv2_api.lambda_api.id
+  authorizer_type = "JWT"
+  identity_sources = ["$request.header.Authorization"]
+
+  jwt_configuration {
+    issuer   = "https://cognito-idp.us-west-2.amazonaws.com/${aws_cognito_user_pool.oidc.id}"
+    audience = [aws_cognito_user_pool_client.oidc_client.id]
+  }
+
+  name = "oidc-authorizer"
+}
+
+
+
 # Create API stage
 resource "aws_apigatewayv2_stage" "lambda_stage" {
   api_id = aws_apigatewayv2_api.lambda_api.id
@@ -96,7 +103,10 @@ resource "aws_apigatewayv2_route" "lambda_route" {
   api_id = aws_apigatewayv2_api.lambda_api.id
   route_key = "ANY /{proxy+}"  # Catches all paths
   target    = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}"
+  authorizer_id = aws_apigatewayv2_authorizer.oidc_auth.id
 }
+
+
 # Allow API Gateway to invoke Lambda
 resource "aws_lambda_permission" "api_gw" {
   statement_id  = "AllowExecutionFromAPIGateway"
