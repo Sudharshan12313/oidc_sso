@@ -23,7 +23,7 @@ resource "aws_iam_role_policy_attachment" "lambda_exec_policy_attachment" {
 }
 
 
-resource "aws_iam_role" "github_actions_oidc" {
+/*resource "aws_iam_role" "github_actions_oidc" {
   name = "github-actions-oidc"
 
   assume_role_policy = jsonencode({
@@ -43,7 +43,7 @@ resource "aws_iam_role" "github_actions_oidc" {
       }
     }]
   })
-}
+}*/
 
 
 /*resource "aws_iam_policy" "github_actions_policy" {
@@ -56,9 +56,9 @@ resource "aws_iam_role" "github_actions_oidc" {
       Resource = "*"
     }]
   })
-}
+}*/
 
-resource "aws_iam_role_policy_attachment" "github_actions_attachment" {
+/*resource "aws_iam_role_policy_attachment" "github_actions_attachment" {
   role       = aws_iam_role.github_actions_oidc.name
   policy_arn = aws_iam_policy.github_actions_policy.arn
 }*/
