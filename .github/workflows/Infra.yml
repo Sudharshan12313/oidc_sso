@@ -65,7 +65,7 @@ jobs:
           tflint --version
 
 
-      Step: Run TFLint
+      #Step: Run TFLint
       - name: Run TFLint
         run: |
          cd Infra/Environments/${{ github.event.inputs.environment || 'dev' }}
