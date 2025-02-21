@@ -11,7 +11,6 @@ module "iam" {
 # ------------------------------
 module "ecr" {
   source    = "../../Modules/ECR"
-  # repo_name = var.repo_name
 }
 
 # ------------------------------
@@ -22,4 +21,5 @@ module "lamda" {
   source = "../../Modules/LAMDA"
   lambda_role_arn = module.iam.lambda_role_arn
   attach_basic_execution = module.iam.attach_basic_execution
+  image_name = var.image_name
 }
