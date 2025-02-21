@@ -6,12 +6,6 @@ resource "aws_cognito_user_pool" "oidc" {
   auto_verified_attributes = ["email"]
 }
 
-/*resource "aws_cognito_user_pool_domain" "oidc_domain" {
-  domain       = "testlambdasso" # Replace with your unique domain
-  user_pool_id = aws_cognito_user_pool.oidc.id
-}*/
-
-
 
 resource "aws_cognito_user_pool_client" "oidc_client" {
   name         = "oidc-client"
@@ -49,10 +43,6 @@ resource "aws_lambda_function" "my_lambda" {
   }
 }
 
-# resource "aws_lambda_function_url" "function_url" {
-#   function_name      = aws_lambda_function.my_lambda.function_name
-#   authorization_type = "NONE"  # or "AWS_IAM" for authenticated access
-# }
 
 # Create API Gateway
 resource "aws_apigatewayv2_api" "lambda_api" {
