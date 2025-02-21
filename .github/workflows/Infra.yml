@@ -65,25 +65,25 @@ jobs:
           tflint --version
 
 
-      # Step: Run TFLint
-      # - name: Run TFLint
-      #   run: |
-      #    cd Infra/Environments/${{ github.event.inputs.environment || 'dev' }}
+      #Step: Run TFLint
+      - name: Run TFLint
+        run: |
+         cd Infra/Environments/${{ github.event.inputs.environment || 'dev' }}
 
-      #    # Ensure .tflint.hcl exists
-      #    if [ ! -f ".tflint.hcl" ]; then
-      #       cat <<EOF > .tflint.hcl
-      #       plugin "terraform" {
-      #       enabled = true
-      #      }
-      #    EOF
-      #    fi
+         # Ensure .tflint.hcl exists
+         if [ ! -f ".tflint.hcl" ]; then
+            cat <<EOF > .tflint.hcl
+            plugin "terraform" {
+            enabled = true
+           }
+         EOF
+         fi
 
-      #    # Install TFLint plugin (Terraform)
-      #    tflint --init
+         # Install TFLint plugin (Terraform)
+         tflint --init
 
-      #    # Run TFLint with proper syntax
-      #    tflint --config .tflint.hcl
+         # Run TFLint with proper syntax
+         tflint --config .tflint.hcl
         # env:
         #  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         #  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -163,7 +163,7 @@ jobs:
           output-file: README.md
           output-method: inject
           git-push: true
-          config-file: .terraform-docs.yml
+         # config-file: .terraform-docs.yml
 
        # **New Step: Add README.md to PR Comment using Sticky Comment**
       - name: Post README.md as PR Comment
