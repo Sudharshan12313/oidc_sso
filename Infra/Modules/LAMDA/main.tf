@@ -1,10 +1,12 @@
-# infra/modules/cognito/cognito.tf
 resource "aws_cognito_user_pool" "oidc" {
   name = "oidc-user-pool"
 
   username_attributes = ["email"]
   auto_verified_attributes = ["email"]
 }
+#Creates an Amazon Cognito User Pool (oidc-user-pool) for user authentication.
+#Allows users to sign in with their email (username_attributes = ["email"]).
+#Automatically verifies email addresses upon sign-up (auto_verified_attributes = ["email"])
 
 
 resource "aws_cognito_user_pool_client" "oidc_client" {
@@ -27,6 +29,10 @@ resource "aws_cognito_user_pool_client" "oidc_client" {
      "ALLOW_USER_PASSWORD_AUTH"
   ]
 }
+#ALLOW_REFRESH_TOKEN_AUTH: Enables session persistence.
+#ALLOW_USER_SRP_AUTH: Uses Secure Remote Password (SRP) for authentication.
+#ALLOW_ADMIN_USER_PASSWORD_AUTH: Allows admins to authenticate users.
+#ALLOW_USER_PASSWORD_AUTH: Allows password-based authentication.
 
 
 # Lambda Function
@@ -57,6 +63,13 @@ resource "aws_apigatewayv2_api" "lambda_api" {
   }
 }
 
+#allow_origins = ["*"]: Allows requests from any domain (should be restricted in production).
+#allow_methods = ["GET", "POST", "PUT", "DELETE"]: Defines allowed HTTP methods.
+#allow_headers = ["Content-Type", "Authorization"]: Allows specific headers.
+#max_age = 300: Specifies how long CORS results should be cached
+
+
+
 resource "aws_apigatewayv2_authorizer" "oidc_auth" {
   api_id          = aws_apigatewayv2_api.lambda_api.id
   authorizer_type = "JWT"
@@ -69,6 +82,11 @@ resource "aws_apigatewayv2_authorizer" "oidc_auth" {
 
   name = "oidc-authorizer"
 }
+
+#Creates an API Gateway JWT Authorizer to validate Cognito authentication.
+#Extracts the JWT token from the Authorization header in API requests.
+#Issuer: Uses Cognito User Pool’s endpoint as the trusted identity provider.
+#Audience: Restricts tokens to be issued only for this specific User Pool Client.
 
 
 
@@ -87,6 +105,9 @@ resource "aws_apigatewayv2_integration" "lambda_integration" {
   integration_method = "POST"
   integration_uri    = aws_lambda_function.my_lambda.invoke_arn
 }
+# Connects API Gateway to AWS Lambda using the AWS_PROXY integration.
+# All requests are forwarded to Lambda as-is.
+
 
 # Create API route
 resource "aws_apigatewayv2_route" "lambda_route" {
@@ -106,3 +127,6 @@ resource "aws_lambda_permission" "api_gw" {
 
   source_arn = "${aws_apigatewayv2_api.lambda_api.execution_arn}/*/*"
 }
+
+#	Grants API Gateway permission to invoke the Lambda function.
+#	Uses the apigateway.amazonaws.com principal to restrict access.
